@@ -1,7 +1,8 @@
 // Ajaxify
 // v1.0.1 - 30 September, 2012
 // https://github.com/browserstate/ajaxify
-(function(window,undefined){
+var ajaxifySite = window.ajaxifySite || {};
+ajaxifySite.init = function(options){
 	
 	// Prepare our Variables
 	var
@@ -19,22 +20,35 @@
 		// Prepare Variables
 		var
 			/* Application Specific Variables */
-			contentSelector = '#content,article:first,.article:first,.post:first',
+            settings = $.extend({ 
+                contentSelector: '#content,article:first,.article:first,.post:first',
+                menuSelector: '#menu,#nav,nav:first,.nav:first',
+                activeClass: 'active selected current youarehere',
+                activeSelector: '.active,.selected,.current,.youarehere',
+                menuChildrenSelector: '> li,> ul > li',
+                completedEventName: 'statechangecomplete',
+                scrollOptions: {
+                    duration: 800,
+                    easing: 'swing'
+                },
+                ignoreSelector: '.no-ajaxy',
+                ignoreScripts: false
+            }, options), 
+            // TODO get rid of these and just replace variables with settings object reference
+			contentSelector = settings.contentSelector,
 			$content = $(contentSelector).filter(':first'),
 			contentNode = $content.get(0),
-			$menu = $('#menu,#nav,nav:first,.nav:first').filter(':first'),
-			activeClass = 'active selected current youarehere',
-			activeSelector = '.active,.selected,.current,.youarehere',
-			menuChildrenSelector = '> li,> ul > li',
-			completedEventName = 'statechangecomplete',
+            menuSelector = settings.menuSelector,
+			$menu = $().filter(':first'),
+			activeClass = settings.activeClass,
+			activeSelector =  settings.activeSelector,
+			menuChildrenSelector = settings.menuChildrenSelector,
+			completedEventName =  settings.completedEventName,
 			/* Application Generic Variables */
 			$window = $(window),
 			$body = $(document.body),
 			rootUrl = History.getRootUrl(),
-			scrollOptions = {
-				duration: 800,
-				easing:'swing'
-			};
+			scrollOptions = settings.scrollOptions; 
 		
 		// Ensure Content
 		if ( $content.length === 0 ) {
@@ -75,7 +89,7 @@
 			var $this = $(this);
 			
 			// Ajaxify
-			$this.find('a:internal:not(.no-ajaxy)').click(function(event){
+			$this.find('a:internal:not(' + settings.ignoreSelector + ')').click(function(event){
 				// Prepare
 				var
 					$this = $(this),
@@ -156,15 +170,17 @@
 					catch ( Exception ) { }
 					
 					// Add the scripts
-					$scripts.each(function(){
-						var $script = $(this), scriptText = $script.text(), scriptNode = document.createElement('script');
-						if ( $script.attr('src') ) {
-							if ( !$script[0].async ) { scriptNode.async = false; }
-							scriptNode.src = $script.attr('src');
-						}
-    						scriptNode.appendChild(document.createTextNode(scriptText));
-						contentNode.appendChild(scriptNode);
-					});
+                    if (!settings.ignoreScripts) {
+                        $scripts.each(function(){
+                            var $script = $(this), scriptText = $script.text(), scriptNode = document.createElement('script');
+                            if ( $script.attr('src') ) {
+                                if ( !$script[0].async ) { scriptNode.async = false; }
+                                scriptNode.src = $script.attr('src');
+                            }
+                                scriptNode.appendChild(document.createTextNode(scriptText));
+                            contentNode.appendChild(scriptNode);
+                        });
+                    }
 
 					// Complete the change
 					if ( $body.ScrollTo||false ) { $body.ScrollTo(scrollOptions); } /* http://balupton.com/projects/jquery-scrollto */
@@ -192,4 +208,4 @@
 
 	}); // end onDomLoad
 
-})(window); // end closure
+}; // end closure
