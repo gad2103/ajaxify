@@ -113,7 +113,7 @@ ajaxifySite.init = function(options){
 		$body.ajaxify();
 		
 		// Hook into State Changes
-		$window.bind('statechange',function(){
+		History.Adapter.bind(window, 'statechange', function(){
 			// Prepare Variables
 			var
 				State = History.getState(),
