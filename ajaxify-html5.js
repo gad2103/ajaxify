@@ -48,7 +48,6 @@ ajaxifySite.init = function(options){
 			$window = $(window),
 			$body = $(document.body),
 			rootUrl = History.getRootUrl(),
-            imgLoader = (window.imagesLoaded) ? imagesLoaded : (window.waitForImages) ? waitForImages : '';
 			scrollOptions = settings.scrollOptions; 
 		
 		// Ensure Content
@@ -162,8 +161,10 @@ ajaxifySite.init = function(options){
 					// Update the content
 					$content.stop(true,true);
 					$content.html(contentHtml).ajaxify();
-                    if (imgLoader) {
-                        $content.imgLoader().done(function(){ $content.animate({opacity: 1}, 800); }); /* you could fade in here if you'd like */
+                    if (window.imagesLoaded) {
+                        $content.imagesLoaded().done(function(){ $content.animate({opacity: 1}, 800); }); /* you could fade in here if you'd like */
+                    } else if(window.waitForImages) {
+                        $content.waitForImages().done(function(){ $content.animate({opacity: 1}, 800); }); /* you could fade in here if you'd like */
                     } else {
                         $content.animate({opacity: 1}, 800);
                     }
